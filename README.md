@@ -18,26 +18,14 @@
 ---
 
 ## 3. High‑Level Architecture
+```mermaid
+graph TD
+    A[Android SPA] -->|Pre‑signed upload URLs| B[Cloudflare Workers]
+    B -->|Upload| C[Cloudflare R2]
+    B -->|Store| D[Cloudflare D1 / Supabase]
+    B -->|Query API| E[Broker Dashboard]
 ```
 
-[Android SPA (Flutter/React Native)]
-
-|
-|-- Pre‑signed upload URLs (Cloudflare Workers)
-
-|
-+--> Cloudflare R2 (image storage)
-
-|
-+--> Cloudflare D1 / Supabase (metadata database)
-
-|
-+--> Cloudflare Workers API (query & export)
-
-|
-+--> Broker Dashboard (web client)
-
-```
 - **Client:** Offline‑first mobile app with embedded ML (blur detection, face blurring, OCR).
 - **Edge API:** Cloudflare Workers for authentication, pre‑signed URLs, metadata ingestion, and query endpoints.
 - **Storage:** R2 for raw images + on‑the‑fly compression/transformation via Cloudflare Images (optional).
@@ -176,36 +164,27 @@ CREATE TABLE submissions (
 
 ---
 
-8. API Endpoints (Workers)
+## 8. API Endpoints (Workers)
 
-Method Path Description
-POST /auth/login Agent login, returns JWT
-POST /upload/url Returns pre‑signed PUT URL for R2
-POST /metadata Store submitted metadata record
-GET /submissions Query submissions (filters: bbox, category, date, quality)
-GET /submissions/{id} Single record with download link
-GET /export Generate export file (GeoJSON, CSV, Parquet)
-GET /health Health check
+| Method | Path | Description |
+| :--- | :--- | :--- |
+| POST | /auth/login | Agent login, returns JWT |
+| POST | /upload/url | Returns pre‑signed PUT URL for R2 |
+| POST | /metadata | Store submitted metadata record |
+| GET | /submissions | Query submissions (filters: bbox, category, date, quality) |
+| GET | /submissions/{id} | Single record with download link |
+| GET | /export | Generate export file (GeoJSON, CSV, Parquet) |
+| GET | /health | Health check |
 
 ---
 
-9. Deployment & Git Repository Structure
+## 9. Deployment & Git Repository Structure
 
-```
+```text
 /storefront-lens
 ├── /mobile            # Flutter app
-│   ├── lib/
-│   ├── android/
-│   ├── ios/
-│   └── pubspec.yaml
 ├── /workers           # Cloudflare Workers (API)
-│   ├── src/
-│   ├── wrangler.toml
-│   └── package.json
 ├── /dashboard         # Broker web dashboard (Next.js)
-│   ├── pages/
-│   ├── components/
-│   └── package.json
 ├── /docs              # Architecture, API docs, user guides
 ├── /schema            # SQL migration files
 ├── README.md
@@ -214,24 +193,23 @@ GET /health Health check
 
 ---
 
-10. Roadmap to V1.0 (12 Weeks)
+## 10. Roadmap to V1.0 (12 Weeks)
 
-· Week 1‑2: Auth, basic camera with EXIF, pre‑signed upload, cloud DB setup.
-· Week 3‑4: Quality checks (blur, lighting, alignment overlay), sensor integration, skew.
-· Week 5‑6: Business metadata fields + on‑device OCR.
-· Week 7‑8: Offline queue, sync engine, reverse geocoding & address validation.
-· Week 9‑10: API querying, export endpoints, broker dashboard MVP.
-· Week 11‑12: Privacy blurring, compression, testing, hardening, documentation, App Store submission.
+- **Week 1‑2:** Auth, basic camera with EXIF, pre‑signed upload, cloud DB setup.
+- **Week 3‑4:** Quality checks (blur, lighting, alignment overlay), sensor integration, skew.
+- **Week 5‑6:** Business metadata fields + on‑device OCR.
+- **Week 7‑8:** Offline queue, sync engine, reverse geocoding & address validation.
+- **Week 9‑10:** API querying, export endpoints, broker dashboard MVP.
+- **Week 11‑12:** Privacy blurring, compression, testing, hardening, documentation, App Store submission.
 
 ---
 
-11. Success Metrics
+## 11. Success Metrics
 
-· Capture success rate ≤ 5% quality‑related rejection.
-· Upload latency < 3s on 4G.
-· Offline sync reliability > 99% of queued items uploaded within 5 minutes of reconnection.
-· Broker satisfaction NPS ≥ 50 from pilot clients.
-· Cost per submission < $0.005 (including storage & compute).
+- **Capture success rate:** ≤ 5% quality‑related rejection.
+- **Upload latency:** < 3s on 4G.
+- **Offline sync reliability:** > 99% of queued items uploaded within 5 minutes of reconnection.
+- **Broker satisfaction:** NPS ≥ 50 from pilot clients.
+- **Cost per submission:** < $0.005 (including storage & compute).
 
-Note: This plan assumes a small, focused development team (2‑3 engineers). Adjust timeline accordingly with more resources.
-
+*Note: This plan assumes a small, focused development team (2‑3 engineers). Adjust timeline accordingly with more resources.*
